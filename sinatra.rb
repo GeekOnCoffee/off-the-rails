@@ -6,7 +6,5 @@ get '/currency/:to\.?:format?' do |to, format|
   else
     "$1 USD = #{CurrencyConverter.new.conversion_from_usd_to(to)} #{to.upcase}"
   end
-
-
 end
 

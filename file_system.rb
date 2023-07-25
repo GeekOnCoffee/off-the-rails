@@ -1,5 +1,3 @@
-require './currency_class'
-
 Dir.each_child("/Users/geekoncoffee/Desktop/examples") { |child| puts 'File: ' + child }
 
 path = File.join(Dir.home, ".foo")

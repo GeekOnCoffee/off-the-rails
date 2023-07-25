@@ -1,4 +1,13 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
+
+begin
+  require 'rubygems'
+rescue StandardError
+  nil
+end
+require 'usb'
+
 #
 # AUTHORS
 #   Eaden McKee <eadz@eadz.co.nz>
@@ -21,11 +30,6 @@
 # need to override their defaults.
 # ref http://www.a-k-r.org/ruby-usb/rdoc/USB/DevHandle.html#method-i-usb_control_msg
 # ref http://www.beyondlogic.org/usbnutshell/usb6.shtml
-
-
-require 'rubygems' rescue nil
-require 'usb'
-
 class BigRedButton
   DEFAULT_VENDOR_ID = 0x1d34
   DEFAULT_PRODUCT_ID = 0x000d
@@ -50,9 +54,9 @@ class BigRedButton
     @product_id = options[:product_id] || DEFAULT_PRODUCT_ID
     @device_index = options[:device_index] || DEFAULT_DEVICE_INDEX
     @interface_id = options[:interface_id] || DEFAULT_INTERFACE_ID
-    @device = USB.devices.select {|device|
+    @device = USB.devices.select do |device|
       device.idVendor == @vendor_id && device.idProduct == @product_id
-    }[@device_index]
+    end[@device_index]
     raise 'Unable to find device' unless @device
   end
 
@@ -67,10 +71,11 @@ class BigRedButton
   end
 
   def get
-    buf = "\0"*8
+    buf = "\0" * 8
     buf[0] = 100
     status = handle.usb_control_msg(0xa1, 0x01, 0x0301, 0x000, buf, 0)
-    raise "Error reading status" if status != 8
+    raise 'Error reading status' if status != 8
+
     result = buf[2]
     case result
     when 0xfe then 'DelcomLight::RGB::GREEN'
@@ -89,6 +94,7 @@ class BigRedButton
 
   def handle
     return @handle if @handle
+
     @handle = @device.usb_open
     begin
       # ruby-usb bug: the arity of rusb_detach_kernel_driver_np isn't defined
@@ -98,7 +104,7 @@ class BigRedButton
       else
         @handle.usb_detach_kernel_driver_np(@interface_id)
       end
-    rescue Errno::ENODATA => e
+    rescue Errno::ENODATA
       # already detached
     end
     @handle.set_configuration(@device.configurations.first)

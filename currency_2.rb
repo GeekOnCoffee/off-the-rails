@@ -1,2 +1,5 @@
 require './currency_class'
-puts CurrencyConverter.new.conversion_from_usd_to('eur')
+
+converter = CurrencyConverter.new
+
+puts converter.conversion_from_usd_to('eur')
